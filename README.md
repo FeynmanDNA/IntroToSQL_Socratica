@@ -354,3 +354,53 @@ big query method took: 0.11228609085083008 seconds
 
 BUT NOTE: when inserting large volumes of data, the way you word your queries can make a big impact on how quickly they will run.
 
+## UPDATE statement
+
+a sample `secret_user` database, with the following schema:
+columns: `user_id`, `first_name`, `last_name`, `code_name`, `country`, `organization`, `salary`, and `knows_kung_fu`
+
+to update, use `UPDATE tablename SET clause`, and **specify the ROWS to make this change**. Use "WHERE" clause to specify rows to update
+
+```sql
+UPDATE secret_user
+SET first_name = 'James'
+WHERE user_id = 1;
+```
+
+like insert, you can make changes to multiple columns with one query using comma
+
+```sql
+UPDATE secret_user
+SET code_name = 'Neo 2.0', salary = 115000
+WHERE first_name = 'Jack' AND last_name = 'Ryan;
+```
+
+```sql
+UPDATE table_name
+SET column1 = value1, column2 = value2, column3 = value3, ...
+WHERE conditions for rows;
+```
+
+**if you do not include a WHERE clause, the change will apply to EVERY ROW in the table!!!**
+
+New operator: `IN`
+
+```sql
+UPDATE secret_user
+SET knows_kung_fu = TRUE
+WHERE user_id IN (5,7,8);
+```
+
+You can do calculations in the query!
+
+```sql
+UPDATE secret_user
+SET salary = 1.1*salary;
+```
+
+Calculate the sum of the salaries:
+
+```sql
+SELECT SUM(salary)
+FROM secret_user;
+```
