@@ -1,4 +1,8 @@
-## from Socratica 2019 SQL tutorials
+# from Socratica 2019 SQL tutorials
+
+### [youtube playlist](http://bit.ly/Socratica_SQL)
+
+## Introduction
 
 SQL generally ends with semi-colons.
 
@@ -488,3 +492,70 @@ _ROUND will round the numeric value to integer_
 single line comment: `--`
 
 multi-line comment `/* .... */`
+
+## JOINs
+
+five tables for this demo:
+- `martian`: all people living on Mars
+    - columns: `martian_id`, `first_name`, `last_name`, `base_id`, `super_id`
+    - `super_id` is the ID of the Martian they report to
+- `base`: all habitats on Mars
+    - columns: `base_id`, `base_name`, `founded`
+    - linked with `martian` table because each Martian has a `base_id` idenfitying where they live and work
+- `visitor`: tracking all current visitors to Mars
+- `inventory`: supplies available at each base
+- `supply`: items available at Central Martian Storage Distribution Center
+
+Q: How do you generate a report listing the full names of all Martians and the name of their home base?
+
+The Martian name is the `martian` table, while the base name is the `base` table. The solution is to join these two tables together by the `base_id`
+
+BUT WHEN a martian's `base_id` is NULL, do we include him in the JOIN, or do we leave him out? The answer depends on the **TYPE OF JOIN** you do. For now, we will leave him out.
+
+Having joined these two tables, you can select data from these rows like an ordinary select query.
+
+```sql
+SELECT *
+FROM martian
+INNER JOIN base
+ON martian.base_id = base.base_id;
+```
+
+Here `martian` is the "Left Table" and `base` is the "Right Table"
+
+Specify HOW to connect two rows from these tables with an `ON` clause. In the `ON` clause you have to specify both table name and column name.
+
+Q: How do you tell SQL whether or not to include rows from a table that **do not have a match in the other**?
+
+We have two tables, and we have **two choices per table**: include rows without a match or exclude them -> so 4 options in total. **SQL has a `JOIN` for each of the four options!**
+
+```sql
+SELECT column1, column2, ...
+FROM leftTable
+____ JOIN rightTable
+ON leftTable.xxx = rightTable.xxx
+WHERE condition(s)
+ORDER BY value;
+```
+
+Four types of JOINs:
+
+1. INNER: only return connected, matching rows
+2. LEFT: returns all connected rows, and unconnected rows from left table (nulls for ALL the columns in the right table)
+3. RIGHT: reverse of LEFT, null values will be used for ALL columns in the left table if no match
+4. FULL: or `FULL OUTER` == LEFT + RIGHT, nulls will fill the gap
+
+NOTE: not every database supports the four joins, for example, MySQL and SQLite do not support FULL JOINs
+
+To avoid ambiguity, you specify the table AND column name in the SELECT clause: `martian.martian_id`, `base.base_id`
+
+## ALIAS
+
+create an "alias" for table name, use the `AS` keyword
+
+```sql
+SELECT m.martian_id, b.base_id, b.base_name
+FROM martian AS m
+INNER JOIN base AS b
+ON m.base_id = b.base_id
+```
