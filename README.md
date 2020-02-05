@@ -132,7 +132,7 @@ In addition to the SELECT and FROM keywords, there is a third valuable part of q
 - SELECT: columns
 - FROM: table
 - WHERE: rows condition AND condition OR condition
-- ORDER BY: asec/desc
+- ORDER BY: asc/desc
 - LIMIT: restrict returned rows
 
 Q: all earthquakes that occurred on or after jan 1 2000:
@@ -155,31 +155,61 @@ LIMIT 1;
 
 To restrict the number of rows returned, use `LIMIT` keyword
 
+Q: how to see the columns of a database?
+
+we only need to select 1 row to see all the columns `SELECT * FROM earthquake LIMIT 1;`
+
+Q: SQL functions:
 
 some other common SQL functions are COUNT, MIN, MAX, AVG, SUM
 
-SELECT MIN(occurred_on), MAX(occurred_on) FROM earthquake
+```sql
+SELECT MIN(occurred_on), MAX(occurred_on) FROM earthquake;
+```
 
 Q: What magnitude range is covered by the table?
-SELECT MIN(magnitude), MAX(magnitude) FROM earthquake
 
+```sql
+SELECT MIN(magnitude), MAX(magnitude) FROM earthquake;
+```
 
-we only need to select 1 row to see all the columns
-SELECT * FROM earthquake LIMIT 1;
+Q: what are the causes for earthquake? DISTINCT
+
+many earthquakes have the same cause, so a lot of duplicates
 
 SELECT DISTINCT will make sure we do not see duplicate rows
 
-SELECT COUNT(*) FROM earthquake WHERE cause='nuclear explosion'
+```sql
+SELECT DISTINCT cause FROM earthquake;
+```
 
-**NOTE: SQL ' and " are different! you should use '**
+Q: how many earthquakes are caused by nuclear explosion?
+
+```sql
+SELECT COUNT(*) FROM earthquake WHERE cause='nuclear explosion';
+```
+
+**NOTE: SQL `'` and `"` are different! you should use SINGLE QUOTE: `'`**
 
 Q: Find the most recent earthquake caused by a nuclear explosion?
-SELECT * FROM earthquake WHERE cause = 'nuclear explosion' ORDER BY occurred_on DESC LIMIT 5
+
+```sql
+SELECT magnitude, place, occurred_on
+FROM earthquake
+WHERE cause = 'nuclear explosion'
+ORDER BY occurred_on DESC
+LIMIT 5;
+```
 
 Q: How can we count the number of aftershocks?
-Idea; find quakes with "Honshu" and "Japan" in the 'place' text and occurred within a week of the March 11th quake
-SELECT * FROM earthquake WHERE place LIKE '%Honshu%Japan%'
-AND occurred_on BETWEEN '2011-03-11' AND '2011-3-18'
 
-'%x' is a string pattern, the % symbol matches zero or more characters
-BETWEEN...AND is another operator
+Idea; find quakes with "Honshu" and "Japan" in the 'place' text and occurred within a week of the March 11th quake
+
+```sql
+SELECT * FROM earthquake WHERE place LIKE '%Honshu%Japan%'
+AND occurred_on BETWEEN '2011-03-11' AND '2011-3-18';
+```
+
+`'%x'` is a string pattern, the `%` symbol matches zero or more characters
+
+`BETWEEN...AND` is another operator
