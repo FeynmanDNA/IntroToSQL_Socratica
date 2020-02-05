@@ -404,3 +404,87 @@ Calculate the sum of the salaries:
 SELECT SUM(salary)
 FROM secret_user;
 ```
+
+## DELETE statements
+
+the sample `song` table has 8 columns: `song_id` (primary key), `title`, `artist`, `album`, `year_released`, `duration`, `tempo`, `loudness`
+
+```sql
+-- Table: public.song
+
+-- DROP TABLE public.song;
+
+CREATE TABLE public.song
+(
+    song_id integer NOT NULL,
+    title character varying COLLATE pg_catalog."default",
+    artist character varying COLLATE pg_catalog."default",
+    album character varying COLLATE pg_catalog."default",
+    year_released integer,
+    duration numeric,
+    tempo numeric,
+    loudness numeric,
+    CONSTRAINT song_pkey PRIMARY KEY (song_id)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.song
+    OWNER to postgres;
+```
+
+See the range of songs first:
+
+```sql
+SELECT MIN(year_released), MAX(year_released) FROM song;
+```
+
+The Min(year_released) is 0! Let's see the distinct values for year released and order by year
+
+```sql
+SELECT DISTINCT year_released
+FROM song
+ORDER BY year_released ASC;
+```
+
+How many songs have an unknown release year, thus 0 in the column? 5320 of them!
+
+```sql
+SELECT COUNT(*)
+FROM song
+WHERE year_released = 0;
+```
+
+We should remove these songs from our table.
+
+```sql
+DELETE FROM song
+WHERE year_released= 0;
+```
+
+**IMPORTANT NOTE: a DELETE query is used delete ROWS! NOT COLUMNS!**, the WHERE clause determines which rows will be deleted
+
+If you do not specify WHERE, it will DELETE ALL ROWS in your table.
+
+**Q: Has tempo changed over time?**
+
+To answer this, we will select the year released and the average tempo from the song table. we will `GROUP` the rows by the year released and average tempo on a year-by-year basis.
+
+```sql
+SELECT year_released, AVG(tempo)
+FROM song
+GROUP BY year_released
+ORDER BY year_released;
+```
+
+This query aggregate the data by year_released, and then return a single row for each batch of rows.
+
+_ROUND will round the numeric value to integer_
+
+## Comment in SQL
+
+single line comment: `--`
+
+multi-line comment `/* .... */`
