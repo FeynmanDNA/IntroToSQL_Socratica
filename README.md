@@ -1,6 +1,32 @@
 ## from Socratica 2019 SQL tutorials
 
-### postgreSQL for debian
+SQL generally ends with semi-colons.
+
+In tables, there are columns with names ending in ID, these are numbers that uniquely identify each row of data. Such values are called "primary keys".
+
+Generally you will use software to insert data.
+
+The SELECT statement gives you the ability to choose data from multiple tables in a process called "JOINs".
+
+A related solution would be to create a virtual table called a "View". This virtual table or table-like object collects matching data from multiple tables and make it easily accessible as if you are working with a single table.
+
+**Speed**: when you execute a SELECT statement with a WHERE clause, the database may have to look at every single record in the table to find matching data. An Index can be created to ensure your queries are fast and efficient.
+
+Transactions provide you the ability to make several changes and ensure that your data is safe if there is a problem part-way along the process.
+
+So main features: **Joins, Views, Indexes, Transactions**
+
+### postgreSQL for linux
+
+We need a relational database, because we use SQL to talk to such systems.
+
+Transferrable Skills:
+- SQL
+- Schema Design
+- Database Optimization
+
+Postgres mascot is elephant, because "elephants never forget"
+
 install postgreSQL client and pgadmin4 for debian
 
 **IMPORTANT**: set up postgres user and password for pgadmin4
@@ -10,7 +36,19 @@ postgres@debian:psql
 postgres=# \password postgres (password = xxx)
 ```
 
+### using pgadmin4
+
 in pgadmin4, create new server: name = localhost, connection/hostname = localhost
+
+Postgres GUI tool is pgadmin
+
+pgAdmin sidebar shows "server group", a server group is a container for organizing your servers.
+
+whenever you make changes in the pgadmin, look at the SQL tab.
+
+To see how many tables there are, open the "schemas" folder. By default database has a public schema.
+
+## SELECT
 
 databases can have many many tables
 
