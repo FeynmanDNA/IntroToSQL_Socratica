@@ -213,3 +213,144 @@ AND occurred_on BETWEEN '2011-03-11' AND '2011-3-18';
 `'%x'` is a string pattern, the `%` symbol matches zero or more characters
 
 `BETWEEN...AND` is another operator
+
+## INSERT
+
+The sample database will consist of several tables:
+- `chitter_user` table
+    - columns: `user_id`, `username`, `encrypted_password`, `email`, and `date_joined`
+    - `user_id` will be the auto-generated primary key
+- `post` table
+    - columns: `post_id`, `user_id`, `post_text`, and `posted_on`
+    - `post_id` will be the auto-generated primary key
+- `follower` table
+    - columns: `user_id` and `follower_id`
+
+for `chitter_user` table:
+
+```sql
+CREATE TABLE public.chitter_user
+(
+    username text,
+    user_id serial NOT NULL,
+    encrypted_password text,
+    email text,
+    date_joined timestamp without time zone,
+    PRIMARY KEY (user_id)
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE public.chitter_user
+    OWNER to postgres;
+```
+
+for `post` table:
+
+```sql
+CREATE TABLE public.post
+(
+    post_id serial NOT NULL,
+    user_id integer,
+    post_text text,
+    posted_on timestamp without time zone DEFAULT current_timestamp,
+    PRIMARY KEY (post_id),
+    CONSTRAINT user_id_constraint FOREIGN KEY (user_id)
+        REFERENCES public.chitter_user (user_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE public.post
+    OWNER to postgres;
+```
+
+for `follower` table:
+
+```sql
+CREATE TABLE public.follower
+(
+    user_id integer NOT NULL,
+    follower_id integer NOT NULL,
+    PRIMARY KEY (user_id, follower_id),
+    CONSTRAINT user_id_constraint FOREIGN KEY (user_id)
+        REFERENCES public.chitter_user (user_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT follower_id_constraint FOREIGN KEY (follower_id)
+        REFERENCES public.chitter_user (user_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE public.follower
+    OWNER to postgres;
+```
+
+the listed columns for which you have data and the VALUES must be in the same order, the order of the data must match the order of the columns
+
+user `DEFAULT` keyword as the user_id, this is because our database will generate this value for us
+
+```sql
+INSERT INTO chitter_user
+	(user_id, username, encrypted_password, email, date_joined)
+VALUES
+	(DEFAULT, 'firstuser', 'd3dasdfi3', '1@1.com', '2019-02-21');
+```
+
+now try add user without specifying all fields, only insert for username and encrypted password
+
+```sql
+INSERT INTO chitter_user
+    (username, encrypted_password)
+VALUES
+    ('seconduser', '878732ddui');
+```
+
+the user_id is generated for us, but other columns are NULL because we did not provide the values
+
+insert into post table, using comma `,` to insert multiple entries
+
+```sql
+INSERT INTO post
+    (user_id, post_text)
+VALUES
+    (1, 'hi, first post!'),
+    (1, 'second post!!');
+```
+
+**speed:** measure speed of `INSERT` queries
+**TEST:** insert 10,000 rows in two different ways, using Python with a Postgres database
+
+**in order to talk to the database, we will use the popular 'psyco PG2' module** `import psycopg2`
+
+NOTE: in order for psycopg2 to work, you need to change `pg_hba.conf` file (/etc/postgresql/9.1/main/pg_hba.conf*).
+
+This line:
+```
+local   all             postgres                                peer
+```
+Should be:
+```
+local   all             postgres                                md5
+```
+
+so the login by password can be done via psycopg2
+
+then restart postgresql `sudo service postgresql restart`
+
+```
+single query method took: 1.3434667587280273 seconds
+
+big query method took: 0.11228609085083008 seconds
+```
+
+BUT NOTE: when inserting large volumes of data, the way you word your queries can make a big impact on how quickly they will run.
+
