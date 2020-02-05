@@ -54,44 +54,107 @@ databases can have many many tables
 
 SELECT can retrieve data from one table or multiple tables with a technique called JOINS
 
-the earthquake csv is from US Geological Science Survey
+the earthquake csv is from US Geological Science Survey, it contains:
+- Event Type: Earthquake
+- Magnitude Range: 5.5+
+- Date Range: 1969 - 2018
 
-earthquake_id is the primary key of the table, primary key is a value that uniquely identifies each row in the table
+This table contains 10 columns: `earthquake_id`, `occurred_on`, `latitude`, `longitude`, `depth`, `magnitude`, `calculation_method`, `network_id`, `place`, and `cause`
+
+`earthquake_id` is the primary key of the table, primary key is a value that uniquely identifies each row in the table
 
 how to import the 'earthquake' table:
 
 1. in pgAdmin: Tools - Query Tool
 2. input this in the Query Editor:
 
-CREATE TABLE public.earthquake
-(
-    earthquake_id integer NOT NULL,
-    occurred_on timestamp without time zone,
-    latitude numeric,
-    longitude numeric,
-    depth numeric,
-    magnitude numeric,
-    calculation_method character varying,
-    network_id character varying,
-    place character varying,
-    cause character varying,
-    CONSTRAINT earthquake_pkey PRIMARY KEY (earthquake_id)
-)
-WITH (
-    OIDS = FALSE
-)
+    ```sql
+    CREATE TABLE public.earthquake
+    (
+        earthquake_id integer NOT NULL,
+        occurred_on timestamp without time zone,
+        latitude numeric,
+        longitude numeric,
+        depth numeric,
+        magnitude numeric,
+        calculation_method character varying,
+        network_id character varying,
+        place character varying,
+        cause character varying,
+        CONSTRAINT earthquake_pkey PRIMARY KEY (earthquake_id)
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    ```
 
 3. now execute (F5)
 4. right-click the 'earthquake' table
 5. use Import (make sure the 'Header' switch is set to 'Yes')
 
+```sh
+ "/usr/bin/psql" --command " "\\copy public.earthquake (earthquake_id, occurred_on, latitude, longitude, depth, magnitude, calculation_method, network_id, place, cause) FROM '/home/svd/Documents/Learn/SQL/earthquake.csv' CSV HEADER QUOTE '\"' ESCAPE '''';""
+```
 
-Q: How to see the whole table?
-SELECT * FROM earthquake
+Q: How to see the whole table? *
 
-Q: How many rows are there in this table?
-SELECT COUNT(*) from earthquake
-to see the count, Count is the name of the function, not the name of any column in our table
+```sql
+SELECT * FROM earthquake;
+```
+
+this has two parts, Select xxx lists the **columns** you want data for, the FROM xxx specifies which **tables** to select data from.
+
+Q: How many rows are there in this table? COUNT
+
+there are functions you can use in your queries~
+
+```sql
+SELECT COUNT(*) FROM earthquake;
+```
+
+for this query, we select a `COUNT` rather than the data itself.
+
+Notice that the name of the columnin the rowset is "count", this is the **name of the function**, not the name of any column in our table
+
+**speed**:
+- SELECT *: 279 msec
+- SELECT COUNT(*): 104 msec
+
+Q: specific select with WHERE
+
+```sql
+SELECT magnitude, place, occurred_on FROM earthquake;
+```
+
+to see the specific columns (the column order does not matter in the query)
+
+In addition to the SELECT and FROM keywords, there is a third valuable part of queries: **WHERE**
+- SELECT: columns
+- FROM: table
+- WHERE: rows condition AND condition OR condition
+- ORDER BY: asec/desc
+- LIMIT: restrict returned rows
+
+Q: all earthquakes that occurred on or after jan 1 2000:
+
+```sql
+SELECT *
+FROM earthquake
+WHERE occurred_on >= '2000-01-01';
+```
+
+Q: What was the largest earthquake in 2010?
+
+```sql
+SELECT *
+FROM earthquake
+WHERE occurred_on >= '2010-01-01' AND occurred_on <= '2010-12-31'
+ORDER BY magnitude DESC
+LIMIT 1;
+```
+
+To restrict the number of rows returned, use `LIMIT` keyword
+
 
 some other common SQL functions are COUNT, MIN, MAX, AVG, SUM
 
@@ -100,14 +163,6 @@ SELECT MIN(occurred_on), MAX(occurred_on) FROM earthquake
 Q: What magnitude range is covered by the table?
 SELECT MIN(magnitude), MAX(magnitude) FROM earthquake
 
-SELECT magnitude, place, occurred_on FROM earthquake to see the specific columns
-
-Q: What was the largest earthquake in 2016?
-SELECT *
-FROM earthquake
-WHERE occurred_on >= '2016-01-01' AND occurred_on <= '2016-12-31'
-ORDER BY magnitude DESC
-LIMIT 1;
 
 we only need to select 1 row to see all the columns
 SELECT * FROM earthquake LIMIT 1;
