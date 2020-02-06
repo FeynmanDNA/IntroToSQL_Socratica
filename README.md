@@ -655,3 +655,37 @@ CROSS JOIN supply AS s;
 ```
 
 coalesce(a1, a2, a3 ...) returns the first non-null argument
+
+## Indexes in SQL
+
+index = how an index works in a book
+
+When you create an index, the database will generate a method to rapidly find data based on one or more columns
+
+eg1. create index on `first_name` column of `person` table
+
+```sql
+CREATE INDEX person_first_name_idx
+ON person (first_name);
+```
+
+It took over four minutes to build the index for the first-name column
+
+The database will do its work not in the order we wrote the queries!
+
+**Query Optimizer**, the database will consider all possible ways to execute your query, then chooses the optimal path!
+
+Each query possibility is a **query plan**
+
+A database can have more than one index, and an index can be made for more than one colum.
+
+```sql
+CREATE INDEX person_first_name_last_name_idex
+ON person (first_name, last_name);
+```
+
+This index took over 7 minutes to build
+
+**indexes are not free!**
+- Just as indexes in a book require paper, indexes in a database require storage
+- Furthermore, when you add data to a database, it needs to create new records AND update ALL RELEVANT the indexes
