@@ -559,3 +559,44 @@ FROM martian AS m
 INNER JOIN base AS b
 ON m.base_id = b.base_id
 ```
+
+you can give column names aliases too
+
+```sql
+SELECT v.first_name AS visitor_fn, v.last_name AS visitor_ln,
+    m.first_name AS martian_fn, m.last_name AS martian_ln
+FROM visitor AS v
+LEFT JOIN martian AS m
+ON v.host_id = m.host_id;
+```
+
+## JOIN table with itself (Self Join)
+
+left table is `martian`, and the right table is their boss (super id) whom they report to
+
+You want a report of EVERY martian, but not every martian has a superior, so we can use `LEFT JOIN`:
+
+```sql
+SELECT m.first_name AS fn, m.last_name AS ln,
+       s.first_name AS super_fn, s.last_name AS super_ln
+FROM martian AS m
+LEFT JOIN martian AS s
+ON m.super_id = s.martian_id
+ORDER BY m.martian_id;
+```
+
+## Inventory report
+
+the two tables containing the data we need:
+- `inventory`: supplies available at each base
+- `supply`: items available at Central Martian Storage Distribution Center
+
+we want name of the supplies and what items they do NOT have in storage, with `sub-query`
+
+```sql
+SELECT *
+FROM (SELECT * FROM inventory WHERE base_id = 1) AS i
+RIGHT JOIN supply AS s
+ON i.supply_id = s.supply_id
+ORDER BY s.supply_id;
+```
