@@ -600,3 +600,58 @@ RIGHT JOIN supply AS s
 ON i.supply_id = s.supply_id
 ORDER BY s.supply_id;
 ```
+
+## Views
+
+you can create virtual tables to avoid super-long queries
+
+How to create a view:
+
+1. write a query returning the data to appear in the view
+2. above write `CREATE VIEW` and give your view a name `AS` the query
+
+```sql
+CREATE VIEW new_view_name AS
+SELECT column1, column2, ...
+FROM table_name;
+```
+
+View benefit: **security** and permission to a view instead of whole table, **simplicity**, 
+
+## Union
+
+To have the list of ALL people, both martian and visitor on Mars:
+
+One way to combine two queries is the `UNION` command
+
+You only need to be sure to line up columns of the same type in your two SELECT queries
+
+```sql
+CREATE VIEW people_on_mars AS
+SELECT CONCAT('m', martian_id) AS id, first_name, last_name, 'Martian' AS status
+FROM martian_public
+    UNION
+SELECT CONCAT('v', visitor_id) AS id, first_name, last_name, 'Visitor' AS status
+FROM visitor;
+```
+
+## Cross join and Coalesce
+
+Task: create a VIEW called "base_storage" showing the quantity of all supply items in stock at each base
+
+For all possible combinations of Base and supply item, with a `CROSS JOIN`: _Performs cross product between two tables_
+
+Cross join connects each row from the first table with each row in the second table. This gives us all possible base/supply combinations. 5 bases x 10 supply items = 50 possible combinations
+
+```sql
+CREATE VIEW base_storage AS
+SELECT b.base_id, s.supply_id, s.name,
+    COALESCE(
+        (SELECT quantity FROM inventory
+         WHERE base_id = b.base_id AND supply_id = s.supply_id),
+    0) AS quantity
+FROM base AS b
+CROSS JOIN supply AS s;
+```
+
+coalesce(a1, a2, a3 ...) returns the first non-null argument
